@@ -1,0 +1,6 @@
+venv/*
+audio/*
+data/*
+checkpoint/*
+*.pyc
+voicefilter.db

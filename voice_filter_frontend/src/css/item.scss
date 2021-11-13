@@ -1,0 +1,22 @@
+@import '~antd/dist/antd.css';
+.box{
+    border: 1px solid #ddd;
+    text-align: center;
+    width: 230px;
+    height: 350px;
+    margin: 3px;
+    box-shadow: 0 0 6px #ddd;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    .img{
+        width: 100px;
+        height: 140px;
+    }
+
+    &:hover{
+        opacity: 0.9;
+        // scale 放大
+        transform: rotateZ(1deg) scale(1.03);
+    }
+}
