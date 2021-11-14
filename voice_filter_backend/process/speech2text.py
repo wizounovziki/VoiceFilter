@@ -93,6 +93,7 @@ def splitVoiceAndSave(musicFileName):
 def speech_to_text(audio_file_path,model):
     result_text_list = []
     result_audio_list = splitVoiceAndSave(audio_file_path)
+    count= 0
     for temp_path in result_audio_list:
         with wave.open(temp_path, 'r') as w:
             rate = w.getframerate()
@@ -105,6 +106,78 @@ def speech_to_text(audio_file_path,model):
             text = model.stt(data16)
             result_text_list.append(text)
         os.remove(temp_path)
+
+    count = 0
+    for r in result_text_list:
+        if count>0:
+            prev = result_text_list[count-1]
+            this = result_text_list[count]
+
+            cursor = 2
+            overlap_str = ''
+            overlap = 2
+            
+            for i in range(2,min(len(prev), len(this))):
+                if prev[-(cursor):] in this[0:cursor] or prev[-(cursor):] is this[0:cursor]:
+                    overlap_str = this[0:cursor]
+                    overlap = cursor
+                cursor+=1
+            result_text_list[count] = this[overlap:]
+        count+=1
+
+
     return result_text_list
 
 model = load_model()
+
+if __name__ == '__main__':
+    import json
+    dir = 'C:/Users/Public/VoiceFilter/demo/'
+    file_list = os.listdir(dir)
+    # print(file_list)
+    name_list = []
+    for f in file_list:
+        name = f.split('-')[0]
+        if not name in name_list:
+            print(name)
+            name_list.append(name)
+            # process estimate and target text of this sample
+            # 000000-estimated
+            estimate  = name + '-estimated.wav'
+            target  = name + '-target.wav'
+
+            es_text = speech_to_text(dir+estimate,model)
+            tg_text = speech_to_text(dir+target,model)
+
+            record = {'pure': tg_text, 'result':es_text}
+
+            jd = json.dumps(record)
+
+            f = open(name+'.json', 'w')
+            f.write(jd)
+            f.close()
+            
+    # result_text_list = ["then placed the pair on a strong chair or dressor or table of convenient height poor int", 
+    #                     "poor into the spunge the remainder of the warm milk and water", 
+    #                     "water stir into it is much of the flower s you can with the spoon then wipe it out plain with your fingers and lay it aside"]
+    # count = 0
+    # for r in result_text_list:
+    #     if count>0:
+    #         prev = result_text_list[count-1]
+    #         this = result_text_list[count]
+
+    #         cursor = 2
+    #         overlap_str = ''
+    #         overlap = 2
+    #         # print(min(len(prev), len(this)))
+    #         for i in range(2,min(len(prev), len(this))):
+    #             # print(prev[-(cursor):],this[0:cursor] )
+    #             if prev[-(cursor):] in this[0:cursor] or prev[-(cursor):] is this[0:cursor]:
+    #                 print('**********************************')
+    #                 overlap_str = this[0:cursor]
+    #                 print(overlap_str)
+    #                 overlap = cursor
+    #             cursor+=1
+    #         result_text_list[count] = this[overlap:]
+    #     count+=1
+    # print(result_text_list)
